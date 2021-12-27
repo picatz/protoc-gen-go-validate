@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+import "validate/validate.proto";
+
+option go_package = "pkg/example;example";
+
+message Request {
+  string first_name = 1 [(validate.field).string = {
+    gt: 0,
+    min: 1,
+    lt: 256,
+    max: 255,
+    not_contains: ".",
+    allow_space: false,
+    ascii_only: true,
+  }];
+  string last_name = 2 [(validate.field).string = {
+    gt: 0,
+    min: 1,
+    lt: 256,
+    max: 255,
+    not_contains: ".",
+    allow_space: false,
+    ascii_only: true,
+  }];
+  string email = 3 [(validate.field).string = {
+    gt: 0,
+    min: 1,
+    lt: 256,
+    max: 255,
+    suffix: "@gmail.com",
+    ascii_only: true,
+  }];
+  optional string nickname = 4 [(validate.field).string = {
+    min: 1,
+    max: 255,
+    match: "^.",
+    not_match: "[[:^alpha:]]",
+  }];
+  optional string team = 5 [(validate.field).string = {
+    required: true,
+    min: 1,
+    max: 255,
+    ascii_only: true,
+  }];
+  uint64 points = 6 [(validate.field).uint64 = {
+    gte: 1,
+    lte: 1000,
+  }];
+  int64 extraPoints = 7 [(validate.field).int64 = {
+    gte: 0,
+  }];
+  float something = 8 [(validate.field).float = {
+    gt: 0,
+  }];
+  optional bytes key = 9 [(validate.field).bytes = {
+    required: true,
+    len: 2048,
+  }];
+  repeated string friends = 10 [(validate.field) = {
+    string: {
+      required: true,
+    },
+  }];
+  double somethingElse = 11 [(validate.field).double = {
+    gt: 0,
+  }];
+}
+
+message Request2 {
+  string first_name = 1;
+  string last_name = 2;
+  string email = 3;
+  optional string nickname = 4;
+}

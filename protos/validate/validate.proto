@@ -1,0 +1,731 @@
+syntax = "proto3";
+
+package validate;
+
+option go_package = "github.com/picatz/protoc-gen-go-validate/pkg/validate;validate";
+
+import "google/protobuf/descriptor.proto";
+
+// Extend the builtin field options with field validation options.
+extend google.protobuf.FieldOptions {
+    optional FieldRules field = 1081;
+}
+
+// Field defines validation behavior for specific message field types.
+message FieldRules {
+    oneof type {
+        // https://developers.google.com/protocol-buffers/docs/overview#scalar
+
+        // Define validation rules for message fields of type `string`.
+        // 
+        //   ```protobuf
+        //   message CreateUserRequest {
+        //     string name = 1 [(validate.field).string = {
+        //       min: 1,
+        //       max: 255,
+        //       allow_space: false,
+        //       ascii_only: true,
+        //     }];
+        //     string password = 2 [(validate.field).string = {
+        //       min: 8,
+        //       max: 255,
+        //     }];
+        //   }
+        //   ```
+        StringRules string = 1;
+        // Define validation rules for message fields of type `bytes`.
+        // 
+        //   ```protobuf
+        //   message UploadBlobRequest {
+        //     bytes blob = 1 [(validate.field).bytes = {
+        //       min: 1,
+        //       max: 1024,
+        //     }];
+        //   }
+        //   ```
+        BytesRules bytes = 2;
+        // Define validation rules for message fields of type `uint32`.
+        // 
+        //   ```protobuf
+        //   message AddPointsRequest {
+        //     uint32 points = 1 [(validate.field).uint32 = {
+        //       gte: 1,
+        //       lte: 100,
+        //     }];
+        //   }
+        //   ```
+        UInt32Rules uint32 = 3;
+        // Define validation rules for message fields of type `uint64`.
+        // 
+        //   ```protobuf
+        //   message AddPointsRequest {
+        //     uint64 points = 1 [(validate.field).uint64 = {
+        //       gte: 1,
+        //       lte: 100,
+        //     }];
+        //   }
+        //   ```
+        UInt64Rules uint64 = 4;
+        // Define validation rules for message fields of type `int32`.
+        // 
+        //   ```protobuf
+        //   message AddPointsRequest {
+        //     int32 points = 1 [(validate.field).int32 = {
+        //       gte: 1,
+        //       lte: 100,
+        //     }];
+        //   }
+        //   ```
+        Int32Rules int32 = 5;
+        // Define validation rules for message fields of type `int64`.
+        // 
+        //   ```protobuf
+        //   message AddPointsRequest {
+        //     int64 points = 1 [(validate.field).int64 = {
+        //       gte: 1,
+        //       lte: 100,
+        //     }];
+        //   }
+        //   ```
+        Int64Rules int64 = 6;
+        // Define validation rules for message fields of type `float32`.
+        // 
+        //   ```protobuf
+        //   message AddFuelRequest {
+        //     float ammount = 1 [(validate.field).float = {
+        //       gt: 0,
+        //     }];
+        //   }
+        //   ```
+        FloatRules float = 7;
+        // Define validation rules for message fields of type `double`.
+        // 
+        //   ```protobuf
+        //   message AddFuelRequest {
+        //     double ammount = 1 [(validate.field).double = {
+        //       gt: 0,
+        //     }];
+        //   }
+        //   ```
+        DoubleRules double = 8;
+    }
+}
+
+// StringRules contain all of the possible validation for string types.
+message StringRules {
+    // Require field value have a specific length.
+    //
+    //   ```protobuf
+    //   message ReadUserByIDRequest {
+    //     string uuid = 1 [(validate.field).string.len = 16];
+    //   }
+    //   ```
+    optional uint64 len = 1;
+    // Require field value be greater than a specific length.
+    //
+    //   ```protobuf
+    //   message ReadUserByEmailRequest {
+    //     string email = 1 [(validate.field).string.gt = 0];
+    //   }
+    //   ```
+    optional uint64 gt = 2;
+    // Require field value be less than a specific length.
+    //
+    //   ```protobuf
+    //   message RegisterUserRequest {
+    //     string email = 1 [(validate.field).string.lt = 256];
+    //   }
+    //   ```
+    optional uint64 lt = 3;
+    // Require field value contains a specific sub-string.
+    //
+    //   ```protobuf
+    //   message RegisterUserRequest {
+    //     string email = 1 [(validate.field).string.contains = "@"];
+    //   }
+    //   ```
+    optional string contains = 5;
+    // Require field value does not contain a specific sub-string.
+    //
+    //   ```protobuf
+    //   message RegisterUserRequest {
+    //     string name = 1 [(validate.field).string.not_contains = " "];
+    //   }
+    //   ```
+    optional string not_contains = 6;
+    // Require field value has a specific prefix.
+    //
+    //   ```protobuf
+    //   message TweetAtUserRequest {
+    //     string name = 1 [(validate.field).string.prefix = "@"];
+    //   }
+    //   ```
+    optional string prefix = 7;
+    // Require field value has a specific suffix.
+    //
+    //   ```protobuf
+    //   message WriteRequest {
+    //     string paragraph = 1 [(validate.field).string.suffix = "."];
+    //   }
+    //   ```
+    optional string suffix = 8;
+    // Allow (or not) spaces.
+    //
+    //   ```protobuf
+    //   message RegisterUserRequest {
+    //     string name = 1 [(validate.field).string.allow_spaces = false];
+    //   }
+    //   ```
+    optional bool allow_space = 9;
+    // Require field value uses only ASCII characters.
+    //
+    //   ```protobuf
+    //   message RegisterUserRequest {
+    //     string name = 1 [(validate.field).string.ascii_only = true];
+    //   }
+    //   ```
+    optional bool ascii_only = 10;
+    // Require field value have a specific minimum length. 
+    //
+    //   ```protobuf
+    //   message RegisterUserRequest {
+    //     string name = 1 [(validate.field).string.min = 1];
+    //   }
+    //   ```
+    optional uint64 min = 11;
+    // Require field value have a specific maximum length. 
+    //
+    //   ```protobuf
+    //   message RegisterUserRequest {
+    //     string name = 1 [(validate.field).string.max = 255];
+    //   }
+    //   ```
+    optional uint64 max = 12;
+    // Require field value match a specific regular expression.
+    //
+    //   ```protobuf
+    //   message RegisterUserRequest {
+    //     string name = 1 [(validate.field).string.match = "[[:alpha:]]"];
+    //   }
+    //   ```
+    optional string match = 13;
+    // Require field value does not match a specific regular expression.
+    //
+    //   ```protobuf
+    //   message RegisterUserRequest {
+    //     string non_alpha_name = 1 [(validate.field).string.not_match = "[[:alpha:]]"];
+    //   }
+    //   ```
+    optional string not_match = 14;
+    // Require a non-empty string.
+    //
+    //   ```protobuf
+    //   message RegisterUserRequest {
+    //     string name = 1 [(validate.field).string.required = true];
+    //   }
+    //   ```
+    optional bool required = 15;
+}
+
+// BytesRules contain all of the possible validation for bytes types.
+message BytesRules {
+    // Require field value have a specific length.
+    //
+    //   ```protobuf
+    //   message CheckCertificateRequest {
+    //     bytes pem_block = 1 [(validate.field).bytes.len = 2000];
+    //   }
+    //   ```
+    optional uint64 len = 1;
+    // Require field value be greater than a specific length.
+    //
+    //   ```protobuf
+    //   message SignMessageRequest {
+    //     bytes msg = 1 [(validate.field).bytes.gt = 0];
+    //   }
+    //   ```
+    optional uint64 gt = 2;
+    // Require field value be less than a specific length.
+    //
+    //   ```protobuf
+    //   message SignMessageRequest {
+    //     bytes msg = 1 [(validate.field).bytes.lt = 5000];
+    //   }
+    //   ```
+    optional uint64 lt = 3;
+    // Require field value be greater than or equal to a specific length.
+    //
+    //   ```protobuf
+    //   message SignMessageRequest {
+    //     bytes msg = 1 [(validate.field).bytes.gte = 1];
+    //   }
+    //   ```
+    optional uint64 gte = 4;
+    // Require field value be less than or equal to a specific length.
+    //
+    //   ```protobuf
+    //   message SignMessageRequest {
+    //     bytes msg = 1 [(validate.field).bytes.lte = 500];
+    //   }
+    //   ```
+    optional uint64 lte = 5;
+    // Require field value to have a specific minimum length.
+    //
+    //   ```protobuf
+    //   message SignMessageRequest {
+    //     bytes msg = 1 [(validate.field).bytes.min = 1];
+    //   }
+    //   ```
+    optional uint64 min = 6;
+    // Require field value to have a specific maximum length.
+    //
+    //   ```protobuf
+    //   message SignMessageRequest {
+    //     bytes msg = 1 [(validate.field).bytes.max = 500];
+    //   }
+    //   ```
+    optional uint64 max = 7;
+    // Require field value to have a specific prefix.
+    //
+    //   ```protobuf
+    //   message StoreKeyRequest {
+    //     bytes key = 1 [(validate.field).bytes.prefix = "-----BEGIN PRIVATE KEY-----\n"];
+    //   }
+    //   ```
+    optional string prefix = 8;
+    // Require field value to have a specific suffix.
+    //
+    //   ```protobuf
+    //   message StoreKeyRequest {
+    //     bytes key = 1 [(validate.field).bytes.suffix = "-----END PRIVATE KEY-----\n"];
+    //   }
+    //   ```
+    optional string suffix = 9;
+    // Require a non-empty chunk of bytes.
+    //
+    //   ```protobuf
+    //   message StoreKeyRequest {
+    //     bytes key = 1 [(validate.field).bytes.required = true];
+    //   }
+    //   ```
+    optional bool required = 10;
+}
+
+// UInt32Rules contain all of the possible validation for uint32 types.
+message UInt32Rules {
+    // Require field value to equal a specific value.
+    //
+    //   ```protobuf
+    //   message AwardPointsRequest {
+    //     uint32 points = 1 [(validate.field).uint32.eq = 10];
+    //   }
+    //   ```
+    optional uint32 eq = 1;
+    // Require field value be greater than a specific value.
+    //
+    //   ```protobuf
+    //   message AwardPointsRequest {
+    //     uint32 points = 1 [(validate.field).uint32.gt = 0];
+    //   }
+    //   ```
+    optional uint32 gt = 2;
+    // Require field value be less than a specific value.
+    //
+    //   ```protobuf
+    //   message AwardPointsRequest {
+    //     uint32 points = 1 [(validate.field).uint32.lt = 1000];
+    //   }
+    //   ```
+    optional uint32 lt = 3;
+    // Require field value be greater than or equal to a specific value.
+    //
+    //   ```protobuf
+    //   message AwardPointsRequest {
+    //     uint32 points = 1 [(validate.field).uint32.gte = 1];
+    //   }
+    //   ```
+    optional uint32 gte = 4;
+    // Require field value be greater than or equal to a specific value.
+    //
+    //   ```protobuf
+    //   message AwardPointsRequest {
+    //     uint32 points = 1 [(validate.field).uint32.lte = 100];
+    //   }
+    //   ```
+    optional uint32 lte = 5;
+    // Require field value to have a specific minimum value. 
+    //
+    //   ```protobuf
+    //   message AwardPointsRequest {
+    //     uint32 points = 1 [(validate.field).uint32.min = 1];
+    //   }
+    //   ```
+    optional uint32 min = 6;
+    // Require field value to have a specific maximum value. 
+    //
+    //   ```protobuf
+    //   message AwardPointsRequest {
+    //     uint32 points = 1 [(validate.field).uint32.min = 1];
+    //   }
+    //   ```
+    optional uint32 max = 7;
+    // Require field to have a non-empty and non-zero value.
+    //
+    //   ```protobuf
+    //   message AwardPointsRequest {
+    //     uint32 points = 1 [(validate.field).uint32.required = true];
+    //   }
+    //   ```
+    optional bool required = 10;
+}
+
+// Int32Rules contain all of the possible validation for int32 types.
+message Int32Rules {
+    // Require field value to equal a specific value.
+    //
+    //   ```protobuf
+    //   message AwardPointsRequest {
+    //     int32 points = 1 [(validate.field).int32.eq = 10];
+    //   }
+    //   ```
+    optional int32 eq = 1;
+    // Require field value be greater than a specific value.
+    //
+    //   ```protobuf
+    //   message AwardPointsRequest {
+    //     int32 points = 1 [(validate.field).int32.gt = 0];
+    //   }
+    //   ```
+    optional int32 gt = 2;
+    // Require field value be less than a specific value.
+    //
+    //   ```protobuf
+    //   message AwardPointsRequest {
+    //     int32 points = 1 [(validate.field).int32.lt = 1000];
+    //   }
+    //   ```
+    optional int32 lt = 3;
+    // Require field value be greater than or equal to a specific value.
+    //
+    //   ```protobuf
+    //   message AwardPointsRequest {
+    //     int32 points = 1 [(validate.field).int32.gte = 1];
+    //   }
+    //   ```
+    optional int32 gte = 4;
+    // Require field value be greater than or equal to a specific value.
+    //
+    //   ```protobuf
+    //   message AwardPointsRequest {
+    //     int32 points = 1 [(validate.field).int32.lte = 100];
+    //   }
+    //   ```
+    optional int32 lte = 5;
+    // Require field value to have a specific minimum value. 
+    //
+    //   ```protobuf
+    //   message AwardPointsRequest {
+    //     int32 points = 1 [(validate.field).int32.min = 1];
+    //   }
+    //   ```
+    optional int32 min = 6;
+    // Require field value to have a specific maximum value. 
+    //
+    //   ```protobuf
+    //   message AwardPointsRequest {
+    //     int32 points = 1 [(validate.field).int32.min = 1];
+    //   }
+    //   ```
+    optional int32 max = 7;
+    // Require field to have a non-empty and non-zero value.
+    //
+    //   ```protobuf
+    //   message AwardPointsRequest {
+    //     int32 points = 1 [(validate.field).int32.required = true];
+    //   }
+    //   ```
+    optional bool required = 10;
+}
+
+// UInt64Rules contain all of the possible validation for uint64 types.
+message UInt64Rules {
+    // Require field value to equal a specific value.
+    //
+    //   ```protobuf
+    //   message AwardPointsRequest {
+    //     uint64 points = 1 [(validate.field).uint64.eq = 10];
+    //   }
+    //   ```
+    optional uint64 eq = 1;
+    // Require field value be greater than a specific value.
+    //
+    //   ```protobuf
+    //   message AwardPointsRequest {
+    //     uint64 points = 1 [(validate.field).uint64.gt = 0];
+    //   }
+    //   ```
+    optional uint64 gt = 2;
+    // Require field value be less than a specific value.
+    //
+    //   ```protobuf
+    //   message AwardPointsRequest {
+    //     uint64 points = 1 [(validate.field).uint64.lt = 1000];
+    //   }
+    //   ```
+    optional uint64 lt = 3;
+    // Require field value be greater than or equal to a specific value.
+    //
+    //   ```protobuf
+    //   message AwardPointsRequest {
+    //     uint64 points = 1 [(validate.field).uint64.gte = 1];
+    //   }
+    //   ```
+    optional uint64 gte = 4;
+    // Require field value be greater than or equal to a specific value.
+    //
+    //   ```protobuf
+    //   message AwardPointsRequest {
+    //     uint64 points = 1 [(validate.field).uint64.lte = 100];
+    //   }
+    //   ```
+    optional uint64 lte = 5;
+    // Require field value to have a specific minimum value. 
+    //
+    //   ```protobuf
+    //   message AwardPointsRequest {
+    //     uint points = 1 [(validate.field).uint64.min = 1];
+    //   }
+    //   ```
+    optional uint64 min = 6;
+    // Require field value to have a specific maximum value. 
+    //
+    //   ```protobuf
+    //   message AwardPointsRequest {
+    //     uint64 points = 1 [(validate.field).uint64.min = 1];
+    //   }
+    //   ```
+    optional uint64 max = 7;
+    // Require field to have a non-empty and non-zero value.
+    //
+    //   ```protobuf
+    //   message AwardPointsRequest {
+    //     uint64 points = 1 [(validate.field).uint64.required = true];
+    //   }
+    //   ```
+    optional bool required = 10;
+}
+
+// Int64Rules contain all of the possible validation for int64 types.
+message Int64Rules {
+    // Require field value to equal a specific value.
+    //
+    //   ```protobuf
+    //   message AwardPointsRequest {
+    //     int64 points = 1 [(validate.field).int64.eq = 10];
+    //   }
+    //   ```
+    optional int64 eq = 1;
+    // Require field value be greater than a specific value.
+    //
+    //   ```protobuf
+    //   message AwardPointsRequest {
+    //     int64 points = 1 [(validate.field).int64.gt = 0];
+    //   }
+    //   ```
+    optional int64 gt = 2;
+    // Require field value be less than a specific value.
+    //
+    //   ```protobuf
+    //   message AwardPointsRequest {
+    //     int64 points = 1 [(validate.field).int64.lt = 1000];
+    //   }
+    //   ```
+    optional int64 lt = 3;
+    // Require field value be greater than or equal to a specific value.
+    //
+    //   ```protobuf
+    //   message AwardPointsRequest {
+    //     int64 points = 1 [(validate.field).int64.gte = 1];
+    //   }
+    //   ```
+    optional int64 gte = 4;
+    // Require field value be greater than or equal to a specific value.
+    //
+    //   ```protobuf
+    //   message AwardPointsRequest {
+    //     int64 points = 1 [(validate.field).int64.lte = 100];
+    //   }
+    //   ```
+    optional int64 lte = 5;
+    // Require field value to have a specific minimum value. 
+    //
+    //   ```protobuf
+    //   message AwardPointsRequest {
+    //     uint points = 1 [(validate.field).int64.min = 1];
+    //   }
+    //   ```
+    optional int64 min = 6;
+    // Require field value to have a specific maximum value. 
+    //
+    //   ```protobuf
+    //   message AwardPointsRequest {
+    //     int64 points = 1 [(validate.field).int64.min = 1];
+    //   }
+    //   ```
+    optional int64 max = 7;
+    // Require field to have a non-empty and non-zero value.
+    //
+    //   ```protobuf
+    //   message AwardPointsRequest {
+    //     int64 points = 1 [(validate.field).int64.required = true];
+    //   }
+    //   ```
+    optional bool required = 10;
+}
+
+// FloatRules contain all of the possible validation for float types.
+message FloatRules {
+    // Require field value to equal a specific value.
+    //
+    //   ```protobuf
+    //   message AwardPointsRequest {
+    //     float points = 1 [(validate.field).float.eq = 10];
+    //   }
+    //   ```
+    optional float eq = 1;
+    // Require field value be greater than a specific value.
+    //
+    //   ```protobuf
+    //   message AwardPointsRequest {
+    //     float points = 1 [(validate.field).float.gt = 0];
+    //   }
+    //   ```
+    optional float gt = 2;
+    // Require field value be less than a specific value.
+    //
+    //   ```protobuf
+    //   message AwardPointsRequest {
+    //     float points = 1 [(validate.field).float.lt = 1000];
+    //   }
+    //   ```
+    optional float lt = 3;
+    // Require field value be greater than or equal to a specific value.
+    //
+    //   ```protobuf
+    //   message AwardPointsRequest {
+    //     float points = 1 [(validate.field).float.gte = 1];
+    //   }
+    //   ```
+    optional float gte = 4;
+    // Require field value be greater than or equal to a specific value.
+    //
+    //   ```protobuf
+    //   message AwardPointsRequest {
+    //     float points = 1 [(validate.field).float.lte = 100];
+    //   }
+    //   ```
+    optional float lte = 5;
+    // Require field value to have a specific minimum value. 
+    //
+    //   ```protobuf
+    //   message AwardPointsRequest {
+    //     uint points = 1 [(validate.field).float.min = 1];
+    //   }
+    //   ```
+    optional float min = 6;
+    // Require field value to have a specific maximum value. 
+    //
+    //   ```protobuf
+    //   message AwardPointsRequest {
+    //     float points = 1 [(validate.field).float.min = 1];
+    //   }
+    //   ```
+    optional float max = 7;
+    // Require field to have a non-empty and non-zero value.
+    //
+    //   ```protobuf
+    //   message AwardPointsRequest {
+    //     float points = 1 [(validate.field).float.required = true];
+    //   }
+    //   ```
+    optional bool required = 10;
+}
+
+// DoubleRules contain all of the possible validation for double types.
+message DoubleRules {
+    // Require field value to equal a specific value.
+    //
+    //   ```protobuf
+    //   message AwardPointsRequest {
+    //     double points = 1 [(validate.field).double.eq = 10];
+    //   }
+    //   ```
+    optional double eq = 1;
+    // Require field value be greater than a specific value.
+    //
+    //   ```protobuf
+    //   message AwardPointsRequest {
+    //     double points = 1 [(validate.field).double.gt = 0];
+    //   }
+    //   ```
+    optional double gt = 2;
+    // Require field value be less than a specific value.
+    //
+    //   ```protobuf
+    //   message AwardPointsRequest {
+    //     double points = 1 [(validate.field).double.lt = 1000];
+    //   }
+    //   ```
+    optional double lt = 3;
+    // Require field value be greater than or equal to a specific value.
+    //
+    //   ```protobuf
+    //   message AwardPointsRequest {
+    //     double points = 1 [(validate.field).double.gte = 1];
+    //   }
+    //   ```
+    optional double gte = 4;
+    // Require field value be greater than or equal to a specific value.
+    //
+    //   ```protobuf
+    //   message AwardPointsRequest {
+    //     double points = 1 [(validate.field).double.lte = 100];
+    //   }
+    //   ```
+    optional double lte = 5;
+    // Require field value to have a specific minimum value. 
+    //
+    //   ```protobuf
+    //   message AwardPointsRequest {
+    //     uint points = 1 [(validate.field).double.min = 1];
+    //   }
+    //   ```
+    optional double min = 6;
+    // Require field value to have a specific maximum value. 
+    //
+    //   ```protobuf
+    //   message AwardPointsRequest {
+    //     double points = 1 [(validate.field).double.min = 1];
+    //   }
+    //   ```
+    optional double max = 7;
+    // Require field to have a non-empty and non-zero value.
+    //
+    //   ```protobuf
+    //   message AwardPointsRequest {
+    //     double points = 1 [(validate.field).double.required = true];
+    //   }
+    //   ```
+    optional bool required = 10;
+}
+
+
+// TODO:
+//
+// Extend the builtin message options with message validation options.
+// extend google.protobuf.MessageOptions {
+//     optional MessageRules message = 1081;
+// }
+// 
+// message MessageRules {
+// }
