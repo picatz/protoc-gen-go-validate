@@ -30,7 +30,7 @@ All validation protobuf options are documented [here](./protos/validate/validate
 
 Protobuf message fields can use `(validate.field)` field options.
 
-* `(validate.rules).string`:  Define validation rules for message fields of type `string`.
+* `(validate.field).string`:  Define validation rules for message fields of type `string`.
  
    ```protobuf
    message CreateUserRequest {
@@ -46,7 +46,7 @@ Protobuf message fields can use `(validate.field)` field options.
      }];
    }
    ```
-* `(validate.rules).bytes`:  Define validation rules for message fields of type `bytes`.
+* `(validate.field).bytes`:  Define validation rules for message fields of type `bytes`.
  
    ```protobuf
    message UploadBlobRequest {
@@ -56,7 +56,7 @@ Protobuf message fields can use `(validate.field)` field options.
      }];
    }
    ```
-* `(validate.rules).uint32`:  Define validation rules for message fields of type `uint32`.
+* `(validate.field).uint32`:  Define validation rules for message fields of type `uint32`.
  
    ```protobuf
    message AddPointsRequest {
@@ -66,7 +66,7 @@ Protobuf message fields can use `(validate.field)` field options.
      }];
    }
    ```
-* `(validate.rules).uint64`:  Define validation rules for message fields of type `uint64`.
+* `(validate.field).uint64`:  Define validation rules for message fields of type `uint64`.
  
    ```protobuf
    message AddPointsRequest {
@@ -76,7 +76,7 @@ Protobuf message fields can use `(validate.field)` field options.
      }];
    }
    ```
-* `(validate.rules).int32`:  Define validation rules for message fields of type `int32`.
+* `(validate.field).int32`:  Define validation rules for message fields of type `int32`.
  
    ```protobuf
    message AddPointsRequest {
@@ -86,7 +86,7 @@ Protobuf message fields can use `(validate.field)` field options.
      }];
    }
    ```
-* `(validate.rules).int64`:  Define validation rules for message fields of type `int64`.
+* `(validate.field).int64`:  Define validation rules for message fields of type `int64`.
  
    ```protobuf
    message AddPointsRequest {
@@ -96,7 +96,7 @@ Protobuf message fields can use `(validate.field)` field options.
      }];
    }
    ```
-* `(validate.rules).float`:  Define validation rules for message fields of type `float32`.
+* `(validate.field).float`:  Define validation rules for message fields of type `float32`.
  
    ```protobuf
    message AddFuelRequest {
@@ -105,7 +105,7 @@ Protobuf message fields can use `(validate.field)` field options.
      }];
    }
    ```
-* `(validate.rules).double`:  Define validation rules for message fields of type `double`.
+* `(validate.field).double`:  Define validation rules for message fields of type `double`.
  
    ```protobuf
    message AddFuelRequest {
