@@ -150,3 +150,8 @@ func (x *Request2) Validate() error {
 	}
 	return nil // is valid
 }
+
+// Validate applies configured validation rule options from the protobuf.
+func (x *Request3) Validate() error {
+	return nil // is valid
+}

@@ -39,7 +39,6 @@ func (g *Generator) Generate() error {
 			// generate validation function for message
 			gf.P(`// Validate applies configured validation rule options from the protobuf.`)
 			gf.P(fmt.Sprintf(`func (x *%s) Validate() error {`, msg.GoIdent.GoName))
-			var anyValidations bool
 			for _, field := range msg.Fields {
 				name := field.Desc.Name()
 
@@ -70,7 +69,6 @@ func (g *Generator) Generate() error {
 					}
 
 					if opts.Message.Required != nil && opts.Message.GetRequired() {
-						anyValidations = true
 						gf.P(fmt.Sprintf(`    if x.%s == nil {`, field.GoName))
 						gf.P(fmt.Sprintf(`        return %s("invalid value for %s, cannot be nil")`, fmtErrorf, field.Desc.Name()))
 						gf.P(`                }`)
@@ -83,8 +81,6 @@ func (g *Generator) Generate() error {
 					if field.Desc.Kind().String() != "string" {
 						return fmt.Errorf("invalid validation string rule kind used for field %q of kind %q", field.Desc.Name(), field.Desc.Kind())
 					}
-
-					anyValidations = true
 
 					rules := opts.GetString_()
 					if rules != nil {
@@ -214,8 +210,6 @@ func (g *Generator) Generate() error {
 						return fmt.Errorf("invalid validation bytes rule kind used for field %q of kind %q", field.Desc.Name(), field.Desc.Kind())
 					}
 
-					anyValidations = true
-
 					rules := opts.GetBytes()
 
 					if rules != nil {
@@ -323,8 +317,6 @@ func (g *Generator) Generate() error {
 						return fmt.Errorf("invalid validation uint32 rule kind used for field %q of kind %q", field.Desc.Name(), field.Desc.Kind())
 					}
 
-					anyValidations = true
-
 					rules := opts.GetUint32()
 
 					if rules != nil {
@@ -411,8 +403,6 @@ func (g *Generator) Generate() error {
 					if field.Desc.Kind().String() != "int32" {
 						return fmt.Errorf("invalid validation int32 rule kind used for field %q of kind %q", field.Desc.Name(), field.Desc.Kind())
 					}
-
-					anyValidations = true
 
 					rules := opts.GetInt32()
 
@@ -501,8 +491,6 @@ func (g *Generator) Generate() error {
 						return fmt.Errorf("invalid validation uint64 rule kind used for field %q of kind %q", field.Desc.Name(), field.Desc.Kind())
 					}
 
-					anyValidations = true
-
 					rules := opts.GetUint64()
 
 					if rules != nil {
@@ -589,8 +577,6 @@ func (g *Generator) Generate() error {
 					if field.Desc.Kind().String() != "int64" {
 						return fmt.Errorf("invalid validation int64 rule kind used for field %q of kind %q", field.Desc.Name(), field.Desc.Kind())
 					}
-
-					anyValidations = true
 
 					rules := opts.GetInt64()
 
@@ -679,8 +665,6 @@ func (g *Generator) Generate() error {
 						return fmt.Errorf("invalid validation float rule kind used for field %q of kind %q", field.Desc.Name(), field.Desc.Kind())
 					}
 
-					anyValidations = true
-
 					rules := opts.GetFloat()
 
 					if rules != nil {
@@ -767,8 +751,6 @@ func (g *Generator) Generate() error {
 					if field.Desc.Kind().String() != "double" {
 						return fmt.Errorf("invalid validation double rule kind used for field %q of kind %q", field.Desc.Name(), field.Desc.Kind())
 					}
-
-					anyValidations = true
 
 					rules := opts.GetDouble()
 
@@ -859,15 +841,9 @@ func (g *Generator) Generate() error {
 					continue
 				}
 			}
-			if !anyValidations {
-				gf.P(`    return fmt.Errorf("no validation options configured") // has no validations`)
-				gf.P(`}`)
-				gf.P("")
-			} else {
-				gf.P(`    return nil // is valid`)
-				gf.P(`}`)
-				gf.P("")
-			}
+			gf.P(`    return nil // is valid`)
+			gf.P(`}`)
+			gf.P("")
 		}
 	}
 	return nil
