@@ -13,6 +13,7 @@ extend google.protobuf.FieldOptions {
 
 // Field defines validation behavior for specific message field types.
 message FieldRules {
+    optional MessageRules message = 9;
     oneof type {
         // https://developers.google.com/protocol-buffers/docs/overview#scalar
 
@@ -719,13 +720,14 @@ message DoubleRules {
     optional bool required = 10;
 }
 
-
-// TODO:
+// MessageRules describe the constraints applied to embedded message values.
 //
-// Extend the builtin message options with message validation options.
-// extend google.protobuf.MessageOptions {
-//     optional MessageRules message = 1081;
-// }
-// 
-// message MessageRules {
-// }
+// For message-type fields, validation is performed recursively.
+message MessageRules {
+    // Skip specifies that the validation rules of this field should not be
+    // evaluated
+    optional bool skip     = 1;
+
+    // Required specifies that this field must be set
+    optional bool required = 2;
+}

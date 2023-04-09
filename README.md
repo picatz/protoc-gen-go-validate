@@ -24,6 +24,8 @@ $ protoc -I protos --go_out=. --go-validate_out=. example.proto
 ...
 ```
 
+> **Note**: you can use the `--go-validate_opt=module=github.com/owner/module` flag when using Go modules.
+
 All validation protobuf options are documented [here](./protos/validate/validate.proto).
 
 ### Validate Message Fields

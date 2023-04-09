@@ -32,18 +32,6 @@ func (g *Generator) Generate() error {
 		gf := gp.NewGeneratedFile(fileName, f.GoImportPath)
 		gf.P(fmt.Sprintf("package %s", f.GoPackageName))
 
-		stringContains := gf.QualifiedGoIdent(protogen.GoIdent{GoImportPath: "strings", GoName: "Contains"})
-		glog.V(0).Infof("using %v", stringContains)
-
-		stringHasPrefix := gf.QualifiedGoIdent(protogen.GoIdent{GoImportPath: "strings", GoName: "HasPrefix"})
-		glog.V(0).Infof("using %v", stringHasPrefix)
-
-		stringHasSuffix := gf.QualifiedGoIdent(protogen.GoIdent{GoImportPath: "strings", GoName: "HasSuffix"})
-		glog.V(0).Infof("using %v", stringHasSuffix)
-
-		gf.QualifiedGoIdent(protogen.GoIdent{GoImportPath: "unicode"})
-		gf.QualifiedGoIdent(protogen.GoIdent{GoImportPath: "regexp"})
-
 		fmtErrorf := gf.QualifiedGoIdent(protogen.GoIdent{GoImportPath: "fmt", GoName: "Errorf"})
 		glog.V(0).Infof("using %v", fmtErrorf)
 
@@ -73,6 +61,20 @@ func (g *Generator) Generate() error {
 
 				if opts == nil {
 					continue
+				}
+
+				if opts.Message != nil {
+					if opts.Message.Skip != nil && opts.Message.GetSkip() {
+						glog.V(0).Infof("skipping validation for field %q", name)
+						continue
+					}
+
+					if opts.Message.Required != nil && opts.Message.GetRequired() {
+						anyValidations = true
+						gf.P(fmt.Sprintf(`    if x.%s == nil {`, field.GoName))
+						gf.P(fmt.Sprintf(`        return %s("invalid value for %s, cannot be nil")`, fmtErrorf, field.Desc.Name()))
+						gf.P(`                }`)
+					}
 				}
 
 				switch opts.Type.(type) {
@@ -130,6 +132,8 @@ func (g *Generator) Generate() error {
 							gf.P(`                }`)
 						}
 						if rules.Contains != nil {
+							stringContains := gf.QualifiedGoIdent(protogen.GoIdent{GoImportPath: "strings", GoName: "Contains"})
+
 							gf.P(fmt.Sprintf(`    if !%s(%s, %q) {`, stringContains, accessName, rules.GetContains()))
 
 							msg := fmt.Sprintf("invalid value for %s, must contain %q", field.GoName, rules.GetContains())
@@ -137,30 +141,37 @@ func (g *Generator) Generate() error {
 							gf.P(`                }`)
 						}
 						if rules.NotContains != nil {
+							stringContains := gf.QualifiedGoIdent(protogen.GoIdent{GoImportPath: "strings", GoName: "Contains"})
+
 							gf.P(fmt.Sprintf(`    if %s(%s, %q) {`, stringContains, accessName, rules.GetNotContains()))
 							msg := fmt.Sprintf("invalid value for %s, must not contain %q", field.GoName, rules.GetNotContains())
 							gf.P(fmt.Sprintf(`        return fmt.Errorf(%q)`, msg))
 							gf.P(`                }`)
 						}
 						if rules.Prefix != nil {
+							stringHasPrefix := gf.QualifiedGoIdent(protogen.GoIdent{GoImportPath: "strings", GoName: "HasPrefix"})
 							gf.P(fmt.Sprintf(`    if !%s(%s, %q) {`, stringHasPrefix, accessName, rules.GetPrefix()))
 							msg := fmt.Sprintf("invalid value for %s, must have prefix %q", field.GoName, rules.GetPrefix())
 							gf.P(fmt.Sprintf(`        return fmt.Errorf(%q)`, msg))
 							gf.P(`                }`)
 						}
 						if rules.Suffix != nil {
+							stringHasSuffix := gf.QualifiedGoIdent(protogen.GoIdent{GoImportPath: "strings", GoName: "HasSuffix"})
 							gf.P(fmt.Sprintf(`    if !%s(%s, %q) {`, stringHasSuffix, accessName, rules.GetSuffix()))
 							msg := fmt.Sprintf("invalid value for %s, must have suffix %q", field.GoName, rules.GetSuffix())
 							gf.P(fmt.Sprintf(`        return fmt.Errorf(%q)`, msg))
 							gf.P(`                }`)
 						}
 						if rules.AllowSpace != nil && !rules.GetAllowSpace() {
+							stringContains := gf.QualifiedGoIdent(protogen.GoIdent{GoImportPath: "strings", GoName: "Contains"})
+
 							gf.P(fmt.Sprintf(`    if %s(%s, " ") {`, stringContains, accessName))
 							msg := fmt.Sprintf("invalid value for %s, cannot have spaces", field.GoName)
 							gf.P(fmt.Sprintf(`        return fmt.Errorf(%q)`, msg))
 							gf.P(`                }`)
 						}
 						if rules.GetAsciiOnly() {
+							gf.QualifiedGoIdent(protogen.GoIdent{GoImportPath: "unicode"})
 							gf.P(fmt.Sprintf(`    for _, c := range %s {`, accessName))
 							gf.P(`                    if c > unicode.MaxASCII {`)
 							msg := fmt.Sprintf("invalid value for %s, can only contain ASCII characters", field.GoName)
@@ -169,6 +180,7 @@ func (g *Generator) Generate() error {
 							gf.P(`                }`)
 						}
 						if rules.Match != nil {
+							gf.QualifiedGoIdent(protogen.GoIdent{GoImportPath: "regexp"})
 							gf.P(fmt.Sprintf(`    match%s, err := regexp.Match(%q, []byte(%s))`, field.GoName, rules.GetMatch(), accessName))
 							gf.P(`                if err != nil {`)
 							gf.P(`                    return fmt.Errorf("failed to validate: %w", err)`)
@@ -179,6 +191,7 @@ func (g *Generator) Generate() error {
 							gf.P(`                }`)
 						}
 						if rules.NotMatch != nil {
+							gf.QualifiedGoIdent(protogen.GoIdent{GoImportPath: "regexp"})
 							gf.P(fmt.Sprintf(`    notMatch%s, err := regexp.Match(%q, []byte(%s))`, field.GoName, rules.GetNotMatch(), accessName))
 							gf.P(`                if err != nil {`)
 							gf.P(`                    return fmt.Errorf("failed to validate: %w", err)`)
@@ -840,7 +853,9 @@ func (g *Generator) Generate() error {
 					}
 				default:
 					// temporary hack
-					glog.V(0).Infof("unhandled validation type: %T for field %q of kind %q", opts.Type, field.Desc.Name(), field.Desc.Kind())
+					if field.Desc.Kind().String() != "message" {
+						glog.V(0).Infof("unhandled validation type: %T for field %q of kind %q", opts.Type, field.Desc.Name(), field.Desc.Kind())
+					}
 					continue
 				}
 			}

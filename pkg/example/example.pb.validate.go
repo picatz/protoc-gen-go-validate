@@ -145,5 +145,8 @@ func (x *Request) Validate() error {
 
 // Validate applies configured validation rule options from the protobuf.
 func (x *Request2) Validate() error {
-	return fmt.Errorf("no validation options configured") // has no validations
+	if x.Nested == nil {
+		return fmt.Errorf("invalid value for nested, cannot be nil")
+	}
+	return nil // is valid
 }

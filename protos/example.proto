@@ -72,4 +72,8 @@ message Request2 {
   string last_name = 2;
   string email = 3;
   optional string nickname = 4;
+
+  Request nested = 5 [(validate.field).message = {
+    required: true,
+  }];
 }
