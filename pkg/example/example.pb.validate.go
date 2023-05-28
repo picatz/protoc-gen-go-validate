@@ -9,7 +9,7 @@ import (
 	unicode "unicode"
 )
 
-// Validate applies configured validation rule options from the protobuf.
+// Validate the message.
 func (x *Request) Validate() error {
 	if len(x.GetFirstName()) <= 0 {
 		return fmt.Errorf("invalid length for FirstName, must be greater than 0")
@@ -145,7 +145,7 @@ func (x *Request) Validate() error {
 	return nil // is valid
 }
 
-// Validate applies configured validation rule options from the protobuf.
+// Validate the message.
 func (x *Request2) Validate() error {
 	if x.Nested == nil {
 		return fmt.Errorf("invalid value for nested, cannot be nil")
@@ -153,7 +153,7 @@ func (x *Request2) Validate() error {
 	return nil // is valid
 }
 
-// Validate applies configured validation rule options from the protobuf.
+// Validate the message.
 func (x *Request3) Validate() error {
 	return nil // is valid
 }

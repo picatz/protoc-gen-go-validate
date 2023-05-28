@@ -13,6 +13,17 @@ extend google.protobuf.FieldOptions {
 
 // Field defines validation behavior for specific message field types.
 message FieldRules {
+    // Define validation rules for message fields.
+    // 
+    //   ```protobuf
+    //   message Outer {
+    //     message Inner {}
+    //      
+    //     Inner inner = 1 [(validate.field).message = {
+    //       required: true,
+    //     }];
+    //   }
+    //   ```
     optional MessageRules message = 9;
     oneof type {
         // https://developers.google.com/protocol-buffers/docs/overview#scalar
@@ -109,6 +120,18 @@ message FieldRules {
         //   }
         //   ```
         DoubleRules double = 8;
+
+        // Define validation rules for message fields of type `repeated`.
+        //
+        //   ```protobuf
+        //   message AddFuelRequest {
+        //     repeated string fuel_types = 1 [(validate.field).repeated = {
+        //       min: 1,
+        //       max: 3,
+        //     }];
+        //   }
+        //   ```
+        RepeatedRules repeated = 10;
     }
 }
 
@@ -730,4 +753,15 @@ message MessageRules {
 
     // Required specifies that this field must be set
     optional bool required = 2;
+}
+
+// RepeatedRules describe the constraints applied to `repeated` values
+message RepeatedRules {
+    // MinItems specifies that this field must have the specified number of
+    // items at a minimum
+    optional uint64 min = 1;
+
+    // MaxItems specifies that this field must have the specified number of
+    // items at a maximum
+    optional uint64 max = 2;
 }

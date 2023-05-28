@@ -10,22 +10,14 @@ import (
 	"google.golang.org/protobuf/compiler/protogen"
 )
 
-type Generator struct {
-	pb *protogen.Plugin
-}
-
-func NewGenerator(pb *protogen.Plugin) *Generator {
-	return &Generator{pb: pb}
-}
-
-func (g *Generator) Generate() error {
+func Generate(pb *protogen.Plugin) error {
 	glog.V(0).Infof("Generating README")
 
 	protoPath := "validate/validate.proto"
 
-	file, ok := g.pb.FilesByPath[protoPath]
+	file, ok := pb.FilesByPath[protoPath]
 	if !ok {
-		return fmt.Errorf("failed to get %q in files by path: %#+v", protoPath, g.pb.FilesByPath)
+		return fmt.Errorf("failed to get %q in files by path: %#+v", protoPath, pb.FilesByPath)
 	}
 
 	readmePath := "README.md"
@@ -87,6 +79,8 @@ func (g *Generator) Generate() error {
 	writeEmptyLine()
 	writeConsole("protoc -I protos --go_out=. --go-validate_out=. example.proto", "...")
 	writeEmptyLine()
+	writeLine("> **Note**: you can use the `--go-validate_opt=module=github.com/owner/module` flag when using Go modules.")
+	writeEmptyLine()
 	writeLine("All validation protobuf options are documented [here](./protos/validate/validate.proto).")
 	writeEmptyLine()
 	writeHeader(3, "Validate Message Fields")
@@ -126,7 +120,7 @@ func (g *Generator) Generate() error {
 
 			// handle the field message differently
 			if ruleType == "Field" {
-				writeLine(fmt.Sprintf("* `(validate.rules).%s`: %s", field.Desc.Name(), fieldCommentParts[0]))
+				writeLine(fmt.Sprintf("* `(validate.field).%s`: %s", field.Desc.Name(), fieldCommentParts[0]))
 			} else {
 				writeLine(fmt.Sprintf("* `%s`: %s", field.Desc.Name(), fieldCommentParts[0]))
 			}

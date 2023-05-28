@@ -32,6 +32,17 @@ All validation protobuf options are documented [here](./protos/validate/validate
 
 Protobuf message fields can use `(validate.field)` field options.
 
+* `(validate.field).message`:  Define validation rules for message fields.
+ 
+   ```protobuf
+   message Outer {
+     message Inner {}
+      
+     Inner inner = 1 [(validate.field).message = {
+       required: true,
+     }];
+   }
+   ```
 * `(validate.field).string`:  Define validation rules for message fields of type `string`.
  
    ```protobuf
@@ -113,6 +124,15 @@ Protobuf message fields can use `(validate.field)` field options.
    message AddFuelRequest {
      double ammount = 1 [(validate.field).double = {
        gt: 0,
+     }];
+   }
+   ```
+* `(validate.field).repeated`:  Define validation rules for message fields of type `repeated`.
+   ```protobuf
+   message AddFuelRequest {
+     repeated string fuel_types = 1 [(validate.field).repeated = {
+       min: 1,
+       max: 3,
      }];
    }
    ```
@@ -572,4 +592,17 @@ Protobuf message fields can use `(validate.field)` field options.
      double points = 1 [(validate.field).double.required = true];
    }
    ```
+
+#### Message Validation Rules
+
+* `skip`:  Skip specifies that the validation rules of this field should not be
+ evaluated
+* `required`:  Required specifies that this field must be set
+
+#### Repeated Validation Rules
+
+* `min`:  MinItems specifies that this field must have the specified number of
+ items at a minimum
+* `max`:  MaxItems specifies that this field must have the specified number of
+ items at a maximum
 

@@ -15,11 +15,9 @@ func main() {
 
 	protogen.Options{
 		ParamFunc: flag.CommandLine.Set,
-	}.Run(func(gp *protogen.Plugin) error {
-		gp.SupportedFeatures = uint64(pluginpb.CodeGeneratorResponse_FEATURE_PROTO3_OPTIONAL)
+	}.Run(func(pb *protogen.Plugin) error {
+		pb.SupportedFeatures = uint64(pluginpb.CodeGeneratorResponse_FEATURE_PROTO3_OPTIONAL)
 
-		gen := readme.NewGenerator(gp)
-
-		return gen.Generate()
+		return readme.Generate(pb)
 	})
 }
