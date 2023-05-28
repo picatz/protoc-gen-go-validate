@@ -29,9 +29,6 @@ func Generate(pb *protogen.Plugin) error {
 
 		gf.P(fmt.Sprintf("package %s", f.GoPackageName))
 
-		fmtErrorf := gf.QualifiedGoIdent(protogen.GoIdent{GoImportPath: "fmt", GoName: "Errorf"})
-		log.Infof("using %v", fmtErrorf)
-
 		for _, msg := range f.Messages {
 			// generate validation function for message
 			gf.P(`// Validate the message.`)
